@@ -2159,7 +2159,7 @@ else:
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         def _unlock_file(f):
-            print("\n_unlock_file()\n")
+            print("\n_unlock_file()", f'{f=}')
             try:
                 fcntl.flock(f, fcntl.LOCK_UN)
             except OSError:
@@ -2179,6 +2179,7 @@ class locked_file(object):
     _closed = False
 
     def __init__(self, filename, mode, block=True, encoding=None):
+        print(f'\nlocked_file.__init(): {filename=} {mode=}, {block=}, {encoding=}')
         assert mode in ['r', 'rb', 'a', 'ab', 'w', 'wb']
         self.f = io.open(filename, mode, encoding=encoding)
         self.mode = mode
@@ -2189,7 +2190,7 @@ class locked_file(object):
         try:
             _lock_file(self.f, exclusive, self.block)
         except IOError:
-            print("IOError, calling self.close()")
+            print("\nIOError, calling self.f.close()", f'{self.f=}')
             self.f.close()
             raise
         return self
