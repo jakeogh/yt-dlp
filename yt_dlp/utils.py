@@ -2145,12 +2145,14 @@ else:
         import fcntl
 
         def _lock_file(f, exclusive, block):
+            print(f"\n_lock_file() {f=} {exclusive=} {block=}")
             try:
                 fcntl.flock(f,
                             fcntl.LOCK_SH if not exclusive
                             else fcntl.LOCK_EX if block
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
+                print(f"\n_lock_file() BlockingIOError {f=} {exclusive=} {block=}")
                 raise
             except OSError:  # AOSP does not have flock()
                 fcntl.lockf(f,
@@ -2159,7 +2161,7 @@ else:
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         def _unlock_file(f):
-            print("\n_unlock_file()", f'{f=}')
+            print('\n_unlock_file() {f=}')
             try:
                 fcntl.flock(f, fcntl.LOCK_UN)
             except OSError:
@@ -2190,7 +2192,7 @@ class locked_file(object):
         try:
             _lock_file(self.f, exclusive, self.block)
         except IOError:
-            print("\nIOError, calling self.f.close()", f'{self.f=}')
+            print("\nlocked_file.__enter__(): IOError, calling self.f.close()", f'{self.f=}')
             self.f.close()
             raise
         return self
