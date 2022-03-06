@@ -2159,6 +2159,7 @@ else:
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         def _unlock_file(f):
+            print("\n_unlock_file()\n")
             try:
                 fcntl.flock(f, fcntl.LOCK_UN)
             except OSError:
@@ -2188,6 +2189,7 @@ class locked_file(object):
         try:
             _lock_file(self.f, exclusive, self.block)
         except IOError:
+            print("IOError, calling self.close()")
             self.f.close()
             raise
         return self
