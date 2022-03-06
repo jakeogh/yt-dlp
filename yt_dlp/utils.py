@@ -2161,7 +2161,7 @@ else:
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         def _unlock_file(f):
-            print('\n_unlock_file() {f=}')
+            print(f'\n_unlock_file() {f=}')
             try:
                 fcntl.flock(f, fcntl.LOCK_UN)
             except OSError:
