@@ -662,6 +662,7 @@ def sanitize_open(filename, open_mode):
 
     It returns the tuple (stream, definitive_file_name).
     """
+    print(f"\nsanitize_open({filename=}, {open_mode=}")
     try:
         if filename == '-':
             if sys.platform == 'win32':
@@ -2145,7 +2146,7 @@ else:
         import fcntl
 
         def _lock_file(f, exclusive, block):
-            print(f"\n_lock_file() {f=} {exclusive=} {block=}")
+            print(f"\n_lock_file({f=}, {exclusive=}, {block=})")
             try:
                 fcntl.flock(f,
                             fcntl.LOCK_SH if not exclusive
@@ -2181,7 +2182,7 @@ class locked_file(object):
     _closed = False
 
     def __init__(self, filename, mode, block=True, encoding=None):
-        print(f'\nlocked_file.__init(): {filename=} {mode=}, {block=}, {encoding=}')
+        print(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=})')
         assert mode in ['r', 'rb', 'a', 'ab', 'w', 'wb']
         self.f = io.open(filename, mode, encoding=encoding)
         self.mode = mode
