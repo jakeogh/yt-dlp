@@ -2193,6 +2193,17 @@ class locked_file(object):
     def __init__(self, filename, mode, block=True, encoding=None):
         eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=})')
         assert mode in ['r', 'rb', 'a', 'ab', 'w', 'wb']
+        # openat(AT_FDCWD</delme/_yt_dlp_delme/_yt_dlp_test_1646631804>, "youtube__Gwo3pEH7hUE.f160.mp4.part", O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 4</delme/_yt_dlp_delme/_yt_dlp_test_1646631804/youtube__Gwo3pEH7hUE.f160.mp4.part>
+        # $ man 2 open
+        # O_WRONLY: write only
+        # O_CREAT: If pathname does not exist, create it as a regular file. (bug!? there is no advisory lock yet)
+        # O_TRUNC: If  the  file already exists and is a regular file and the access mode allows writing (i.e., is O_RDWR or O_WRONLY) it will be truncated to length 0. (bug!? there is no advisory lock yet)
+        # O_CLOEXEC: Enable the close-on-exec flag for the new file descriptor.  Specifying this flag permits a program to avoid additional fcntl(2) F_SETFD operations to set the FD_CLOEXEC flag.
+        #   Note that the use of this flag is essential in some multithreaded programs, because using a separate fcntl(2) F_SETFD operation to set the FD_CLOEXEC flag does not suffice to avoid race conditions where one thread
+        #   opens a file descriptor and attempts to set its close-on-exec flag using fcntl(2) at the same time as another thread does a fork(2) plus execve(2). Depending on the order of execution, the race may lead to the file
+        #   descriptor returned by open() being unintentionally leaked to the program executed by the child process created by fork(2). (This kind of race is in principle possible for any system call that creates a file descriptor
+        #   whose close-on-exec flag should be set, and various other Linux system calls provide an equivalent of the O_CLOEXEC flag to deal with this problem.)
+
         self.f = io.open(filename, mode, encoding=encoding)
         self.mode = mode
         self.block = block
