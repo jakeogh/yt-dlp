@@ -2204,11 +2204,15 @@ class locked_file(object):
         #   descriptor returned by open() being unintentionally leaked to the program executed by the child process created by fork(2). (This kind of race is in principle possible for any system call that creates a file descriptor
         #   whose close-on-exec flag should be set, and various other Linux system calls provide an equivalent of the O_CLOEXEC flag to deal with this problem.)
 
+        # https://docs.python.org/3/library/io.html
+        # https://docs.python.org/3/library/io.html#io.open
+        #   io.open(file, mode='r', buffering=- 1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
         self.f = io.open(filename, mode, encoding=encoding)
         self.mode = mode
         self.block = block
 
     def __enter__(self):
+        eprint(f'\nlocked_file.__enter__({self.f})')
         exclusive = 'r' not in self.mode
         try:
             _lock_file(self.f, exclusive, self.block)
@@ -2219,6 +2223,7 @@ class locked_file(object):
         return self
 
     def __exit__(self, etype, value, traceback):
+        eprint(f'\nlocked_file.__exit__({self.f})')
         try:
             if not self._closed:
                 _unlock_file(self.f)
