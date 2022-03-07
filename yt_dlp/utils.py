@@ -2247,6 +2247,7 @@ class locked_file(object):
         return self.__enter__()
 
     def close(self, *args):
+        eprint(f'\nlocked_file.close({self.f})')
         self.__exit__(self, *args, value=False, traceback=False)
 
 
