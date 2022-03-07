@@ -85,6 +85,15 @@ from .socks import (
 )
 
 
+def eprint(*args, **kwargs) -> None:
+    '''print() to sys.stderr'''
+    try:
+        kwargs.pop('file')
+    except KeyError:
+        pass
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def register_socks_protocols():
     # "Register" SOCKS protocols
     # In Python < 2.6.5, urlsplit() suffers from bug https://bugs.python.org/issue7904
@@ -662,7 +671,7 @@ def sanitize_open(filename, open_mode):
 
     It returns the tuple (stream, definitive_file_name).
     """
-    print(f"\nsanitize_open({filename=}, {open_mode=}")
+    eprint(f"\nsanitize_open({filename=}, {open_mode=}")
     try:
         if filename == '-':
             if sys.platform == 'win32':
@@ -2146,14 +2155,14 @@ else:
         import fcntl
 
         def _lock_file(f, exclusive, block):
-            print(f"\n_lock_file({f=}, {exclusive=}, {block=})")
+            eprint(f"\n_lock_file({f=}, {exclusive=}, {block=})")
             try:
                 fcntl.flock(f,
                             fcntl.LOCK_SH if not exclusive
                             else fcntl.LOCK_EX if block
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
-                print(f"\n_lock_file() BlockingIOError {f=} {exclusive=} {block=}")
+                eprint(f"\n_lock_file() BlockingIOError {f=} {exclusive=} {block=}")
                 raise
             except OSError:  # AOSP does not have flock()
                 fcntl.lockf(f,
@@ -2162,7 +2171,7 @@ else:
                             else fcntl.LOCK_EX | fcntl.LOCK_NB)
 
         def _unlock_file(f):
-            print(f'\n_unlock_file() {f=}')
+            eprint(f'\n_unlock_file() {f=}')
             try:
                 fcntl.flock(f, fcntl.LOCK_UN)
             except OSError:
@@ -2182,7 +2191,7 @@ class locked_file(object):
     _closed = False
 
     def __init__(self, filename, mode, block=True, encoding=None):
-        print(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=})')
+        eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=})')
         assert mode in ['r', 'rb', 'a', 'ab', 'w', 'wb']
         self.f = io.open(filename, mode, encoding=encoding)
         self.mode = mode
@@ -2193,7 +2202,7 @@ class locked_file(object):
         try:
             _lock_file(self.f, exclusive, self.block)
         except IOError:
-            print("\nlocked_file.__enter__(): IOError, calling self.f.close()", f'{self.f=}')
+            eprint("\nlocked_file.__enter__(): IOError, calling self.f.close()", f'{self.f=}')
             self.f.close()
             raise
         return self
