@@ -14,7 +14,7 @@
 #       results in:
 #           strace:
 #               openat(AT_FDCWD</delme/_yt_dlp_delme/_yt_dlp_test_1646631804>, "youtube__Gwo3pEH7hUE.f160.mp4.part", O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 4</delme/_yt_dlp_delme/_yt_dlp_test_1646631804/youtube__Gwo3pEH7hUE.f160.mp4.part>
-#       which truncates the file, even though this process does not have an advisory lock,
+#       which (untested guess) truncates the file, even though this process does not have an advisory lock,
 #
 #
 
