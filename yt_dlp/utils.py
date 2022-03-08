@@ -2213,12 +2213,15 @@ class locked_file(object):
 
         # https://docs.python.org/3/library/io.html
         # https://docs.python.org/3/library/io.html#io.open
-        #   io.open(file, mode='r', buffering=- 1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
+        #     io.open(file, mode='r', buffering=- 1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
         #   This is an alias for the builtin open() function.
         #   This function raises an auditing event open with arguments path, mode and flags. The mode and flags arguments may have been modified or inferred from the original call.
         # Q: does io.open() allow the user to apply O_EXCL?
         #
         #self.f = io.open(filename, mode, encoding=encoding)  # close_fd defaults to True, so make it explicit:
+        #
+        # https://docs.python.org/3/library/functions.html#open
+        #     open(file, mode='r', buffering=- 1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
         self.f = io.open(filename, mode, encoding=encoding, close_fd=True)
         eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=}) (after io.open())')
         self.mode = mode
