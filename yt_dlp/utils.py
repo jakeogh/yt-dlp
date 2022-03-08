@@ -2192,7 +2192,14 @@ class locked_file(object):
 
     def __init__(self, filename, mode, block=True, encoding=None):
         eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=})')
-        assert mode in ['r', 'rb', 'a', 'ab', 'w', 'wb']
+        if mode not in ['r', 'rb', 'a', 'ab', 'w', 'wb']:
+            raise NotImplementedError(mode)
+        # it is not yet known if this process can write to `filename`
+        # first a RO file handle must be obtained
+        #   if the file does not exist, O_CREAT must be used with O_EXCL (this is prob the real issue)
+        # second an advisory lock must be obtained
+        # third, then file can be written to
+
         # openat(AT_FDCWD</delme/_yt_dlp_delme/_yt_dlp_test_1646631804>, "youtube__Gwo3pEH7hUE.f160.mp4.part", O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 4</delme/_yt_dlp_delme/_yt_dlp_test_1646631804/youtube__Gwo3pEH7hUE.f160.mp4.part>
         # $ man 2 open
         # O_WRONLY: write only
