@@ -2224,7 +2224,7 @@ class locked_file(object):
         #       If a filename is given closefd must be True (the default); otherwise, an error will be raised.
         #self.f = io.open(filename, mode, encoding=encoding)  # closefd defaults to True, so make it explicit:
         # must not apply w modes until the advisory lock is acquired
-        fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_CLOEXEC)  # dont pass O_TRUNC
+        fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_CLOEXEC, mode=mode)  # dont pass O_TRUNC
         #self.f = io.open(filename, mode, encoding=encoding, closefd=True)
         self.f = os.fdopen(fd)
         eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=}) (after io.open())')
