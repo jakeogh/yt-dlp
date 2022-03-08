@@ -20,26 +20,29 @@
 
 # The below test is using --match-filter and --size to make the race condition trigger reliabely.
 
-echo -e "\n\nSTARTING $0" "$@"
+log(){
+    echo -e "$*" > /dev/stderr
+}
 
-set -o pipefail
-set -o nounset
+log "\n\nSTARTING $0" "$@"
+
+#set -o pipefail
+#set -o nounset
 yt_dlp_HEAD_repo="/home/user/_myapps/yt-dlp"  # this repo's HEAD should reflect the version of yt-dlp this script exectutes
 test -d "${yt_dlp_HEAD_repo}/.git/" || { echo "plese set yt_dlp_HEAD_repo on line 43 of $(readlink -f "$0")" ; exit 1 ; }
 cd "${yt_dlp_HEAD_repo}" || exit 1
 git_HEAD_commit=$(git rev-parse --short HEAD)
-set +o nounset
-set +o pipefail
+cd -
+log "git_HEAD_commit: ${git_HEAD_commit}"
+#set +o nounset
+#set +o pipefail
 
-
-log(){
-    echo -e "$*" > /dev/stderr
-}
 
 boolish(){
     test "${1}" -eq 0 && echo "PASS" && exit 0
     test "${1}" -eq 1 && echo "fail" && exit 0
 }
+
 
 ffmpeg_test_file(){
     #file=$(readlink -f "${1}")  # too verbose
@@ -78,7 +81,9 @@ whereis strace > /dev/null || { log "strace not found, is used to log system cal
 sudo /bin/true  # prompt user for sudo pw so the fatrace line below executes immediately
 
 
-# make stdout unbuffered so logging looks nice
+# make stdout unbuffered so logging looks nice (not sure it's working)
+# https://stackoverflow.com/a/30975598
+# https://stackoverflow.com/questions/30975334/copy-unbuffered-stdout-to-file-from-within-bash-script-itself
 if [[ "$1" != __UNBUFFERED__ ]]; then
     #set -x
     stdbuf -oL "$0" __UNBUFFERED__
@@ -86,14 +91,14 @@ if [[ "$1" != __UNBUFFERED__ ]]; then
 else
     shift #discard __UNBUFFERED__
     set -o nounset
-    temp_dir="_yt_dlp_test_$(date +%s)"
+    temp_dir="_yt_dlp_test_$(date +%s)___HEAD:${git_HEAD_commit}"
     mkdir "${temp_dir}" || exit 1
     cd "${temp_dir}" || exit 1
 
     # capture this terminal session to logfile
     exec > >(tee -i terminal_log.txt)
     exec 2>&1
-    #log "Using temp_dir: ${temp_dir}"
+    log "Using temp_dir: ${temp_dir}"
 
     cp -v "$0" .  # add a copy of this script to the log folder
 
@@ -135,6 +140,8 @@ else
 
     wait "${process_A_pid}" ; log "process_A exited $?"
     wait "${process_B_pid}" ; log "process_B exited $?"
+    #pwd
+    #ls -alh
 
     sudo kill "${fatrace_pid}" || exit 1
     cat fatrace.log | grep -v strace > fatrace.log.no_strace.log || exit 1
@@ -152,7 +159,8 @@ else
     # yt-dlp.strace.log=yt-dlp.strace.log.${}
     #grep -v "^brk(" yt-dlp.strace.log > yt-dlp.strace.log.io.log || exit 1
     #grep -v "^brk(" yt-dlp.strace.log > yt-dlp.strace.log.io.log || exit 1
-
+    #pwd
+    #ls -alh
     log "INFO: unlinking unrelated ID's, any failures here are unexpected"
     set -x
     rm -f youtube__Q6NBnPfPhWE.f139.m4a || exit 1
@@ -164,7 +172,7 @@ else
     set +x
 
     expected_output_file_count=3
-
+    ls -alh
     output_file_count="$(find . -type f -name "youtube__Gwo3pEH7hUE*" | wc -l)"
     if [ "${output_file_count}" -ne "${expected_output_file_count}" ];
     then
@@ -194,7 +202,7 @@ else
             test ! -x youtube__Gwo3pEH7hUE.manual.mp4 || { echo "IMPLEMENTATION_ERROR: youtube__Gwo3pEH7hUE.manual.mp4 does not exist" ; exit 1 ; }
         fi
     else
-        log "\nINFO: ffmpeg manual merge job exited 0, it appears that there is no file corruption.\n"
+        log "\nINFO: ffmpeg manual merge job exited 0, it appears that there is no file corruption, checking each input file again anyway.\n"
         if [ "${output_file_count}" -eq 2 ];
         then
             log "ERROR... but neither process_A or process_B tried to merge, so this is the 'nobody merged, no corruption' case.\n"
@@ -261,7 +269,7 @@ else
     log "\nINFO: results written to: $(readlink -f "${result_folder}")"
 fi
 
-
+# (gave up, too many to enumerate manually)
 # cases:
 #
 #    1. "nobody merged"

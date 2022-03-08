@@ -2222,6 +2222,7 @@ class locked_file(object):
         #     open(file, mode='r', buffering=- 1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
 
         #self.f = io.open(filename, mode, encoding=encoding)  # close_fd defaults to True, so make it explicit:
+        # must not apply w modes until the advisory lock is acquired
         self.f = io.open(filename, mode, encoding=encoding, closefd=True)
         eprint(f'\nlocked_file.__init__({filename=}, {mode=}, {block=}, {encoding=}) (after io.open())')
         self.mode = mode
